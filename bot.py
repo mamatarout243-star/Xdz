@@ -614,6 +614,27 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         game["votes"][user.id] = target_id
         await query.answer(f"Voted for {game['players'][target_id]['name']}!")
 
+
+# --- KEEP BOT ALIVE WEB SERVER ---
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot Alive")
+
+def run_web():
+    import os
+    port = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(("0.0.0.0", port), Handler)
+    server.serve_forever()
+
+threading.Thread(target=run_web).start()
+# --- END KEEP ALIVE ---
+
+
 def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start_cmd))
